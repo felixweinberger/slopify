@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator - Slopify</title>
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .calculator-container {
+      max-width: 400px;
+      margin: 2rem auto;
+    }
+
+    .calculator {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .display {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-end;
+    }
+
+    .display-expression {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 0.5rem;
+      min-height: 1.2rem;
+    }
+
+    .display-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--cyan);
+      word-break: break-all;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      border-radius: 12px;
+      padding: 1.5rem;
+      font-size: 1.5rem;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-number {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-operator {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: white;
+    }
+
+    .btn-equals {
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      grid-column: span 2;
+    }
+
+    .btn-clear {
+      background: linear-gradient(135deg, var(--pink), var(--yellow));
+      color: white;
+    }
+
+    .btn-zero {
+      grid-column: span 2;
+    }
+
+    .history {
+      margin-top: 2rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .history h3 {
+      margin-top: 0;
+      color: var(--yellow);
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .history-item {
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      font-family: 'Courier New', monospace;
+    }
+
+    .history-expression {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+    }
+
+    .history-result {
+      color: var(--cyan);
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-top: 0.25rem;
+    }
+
+    .history-empty {
+      color: rgba(255, 255, 255, 0.4);
+      font-style: italic;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      .calculator-container {
+        margin: 1rem;
+      }
+
+      .btn {
+        padding: 1.2rem;
+        font-size: 1.3rem;
+      }
+
+      .display-value {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/">← Back to Slopify</a>
+      <h1>🧮 Calculator</h1>
+      <p>Simple arithmetic with calculation history</p>
+    </header>
+
+    <main>
+      <div class="calculator-container">
+        <div class="calculator">
+          <div class="display">
+            <div class="display-expression" id="expression"></div>
+            <div class="display-value" id="display">0</div>
+          </div>
+
+          <div class="buttons">
+            <button class="btn btn-clear" data-action="clear">C</button>
+            <button class="btn btn-clear" data-action="backspace">←</button>
+            <button class="btn btn-operator" data-action="divide">÷</button>
+            <button class="btn btn-operator" data-action="multiply">×</button>
+
+            <button class="btn btn-number" data-number="7">7</button>
+            <button class="btn btn-number" data-number="8">8</button>
+            <button class="btn btn-number" data-number="9">9</button>
+            <button class="btn btn-operator" data-action="subtract">−</button>
+
+            <button class="btn btn-number" data-number="4">4</button>
+            <button class="btn btn-number" data-number="5">5</button>
+            <button class="btn btn-number" data-number="6">6</button>
+            <button class="btn btn-operator" data-action="add">+</button>
+
+            <button class="btn btn-number" data-number="1">1</button>
+            <button class="btn btn-number" data-number="2">2</button>
+            <button class="btn btn-number" data-number="3">3</button>
+            <button class="btn btn-equals" data-action="equals">=</button>
+
+            <button class="btn btn-number btn-zero" data-number="0">0</button>
+            <button class="btn btn-number" data-action="decimal">.</button>
+          </div>
+        </div>
+
+        <div class="history">
+          <h3>History</h3>
+          <ul class="history-list" id="history-list">
+            <li class="history-empty">No calculations yet</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    class Calculator {
+      constructor() {
+        this.displayValue = '0';
+        this.previousValue = null;
+        this.operator = null;
+        this.waitingForOperand = false;
+        this.expression = '';
+        this.history = this.loadHistory();
+
+        this.display = document.getElementById('display');
+        this.expressionDisplay = document.getElementById('expression');
+        this.historyList = document.getElementById('history-list');
+
+        this.init();
+        this.renderHistory();
+      }
+
+      init() {
+        document.querySelectorAll('.btn').forEach(button => {
+          button.addEventListener('click', (e) => {
+            const number = e.target.dataset.number;
+            const action = e.target.dataset.action;
+
+            if (number !== undefined) {
+              this.inputNumber(number);
+            } else if (action) {
+              this.handleAction(action);
+            }
+
+            this.updateDisplay();
+          });
+        });
+
+        document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+      }
+
+      inputNumber(num) {
+        if (this.waitingForOperand) {
+          this.displayValue = String(num);
+          this.waitingForOperand = false;
+        } else {
+          this.displayValue = this.displayValue === '0' ? String(num) : this.displayValue + num;
+        }
+      }
+
+      inputDecimal() {
+        if (this.waitingForOperand) {
+          this.displayValue = '0.';
+          this.waitingForOperand = false;
+        } else if (this.displayValue.indexOf('.') === -1) {
+          this.displayValue += '.';
+        }
+      }
+
+      clear() {
+        this.displayValue = '0';
+        this.previousValue = null;
+        this.operator = null;
+        this.waitingForOperand = false;
+        this.expression = '';
+      }
+
+      backspace() {
+        if (this.displayValue.length > 1) {
+          this.displayValue = this.displayValue.slice(0, -1);
+        } else {
+          this.displayValue = '0';
+        }
+      }
+
+      performOperation(nextOperator) {
+        const inputValue = parseFloat(this.displayValue);
+
+        if (this.previousValue === null) {
+          this.previousValue = inputValue;
+        } else if (this.operator) {
+          const result = this.calculate(this.previousValue, inputValue, this.operator);
+          this.displayValue = String(result);
+          this.previousValue = result;
+        }
+
+        this.waitingForOperand = true;
+        this.operator = nextOperator;
+
+        if (nextOperator) {
+          this.expression = `${this.previousValue} ${this.getOperatorSymbol(nextOperator)}`;
+        }
+      }
+
+      calculate(firstOperand, secondOperand, operator) {
+        switch (operator) {
+          case 'add':
+            return firstOperand + secondOperand;
+          case 'subtract':
+            return firstOperand - secondOperand;
+          case 'multiply':
+            return firstOperand * secondOperand;
+          case 'divide':
+            return secondOperand !== 0 ? firstOperand / secondOperand : 0;
+          default:
+            return secondOperand;
+        }
+      }
+
+      getOperatorSymbol(operator) {
+        switch (operator) {
+          case 'add': return '+';
+          case 'subtract': return '−';
+          case 'multiply': return '×';
+          case 'divide': return '÷';
+          default: return '';
+        }
+      }
+
+      handleAction(action) {
+        switch (action) {
+          case 'clear':
+            this.clear();
+            break;
+          case 'backspace':
+            this.backspace();
+            break;
+          case 'decimal':
+            this.inputDecimal();
+            break;
+          case 'equals':
+            if (this.operator && this.previousValue !== null) {
+              const fullExpression = `${this.expression} ${this.displayValue}`;
+              this.performOperation(null);
+              this.addToHistory(fullExpression, this.displayValue);
+              this.expression = '';
+            }
+            break;
+          case 'add':
+          case 'subtract':
+          case 'multiply':
+          case 'divide':
+            this.performOperation(action);
+            break;
+        }
+      }
+
+      handleKeyboard(e) {
+        const key = e.key;
+
+        if (key >= '0' && key <= '9') {
+          this.inputNumber(key);
+          this.updateDisplay();
+        } else if (key === '.') {
+          this.inputDecimal();
+          this.updateDisplay();
+        } else if (key === 'Backspace') {
+          this.backspace();
+          this.updateDisplay();
+        } else if (key === 'Escape' || key === 'c' || key === 'C') {
+          this.clear();
+          this.updateDisplay();
+        } else if (key === 'Enter' || key === '=') {
+          e.preventDefault();
+          this.handleAction('equals');
+          this.updateDisplay();
+        } else if (key === '+') {
+          this.performOperation('add');
+          this.updateDisplay();
+        } else if (key === '-') {
+          this.performOperation('subtract');
+          this.updateDisplay();
+        } else if (key === '*') {
+          this.performOperation('multiply');
+          this.updateDisplay();
+        } else if (key === '/') {
+          e.preventDefault();
+          this.performOperation('divide');
+          this.updateDisplay();
+        }
+      }
+
+      updateDisplay() {
+        this.display.textContent = this.displayValue;
+        this.expressionDisplay.textContent = this.expression;
+      }
+
+      addToHistory(expression, result) {
+        const historyItem = {
+          expression,
+          result,
+          timestamp: Date.now()
+        };
+
+        this.history.unshift(historyItem);
+
+        if (this.history.length > 5) {
+          this.history = this.history.slice(0, 5);
+        }
+
+        this.saveHistory();
+        this.renderHistory();
+      }
+
+      loadHistory() {
+        try {
+          const saved = localStorage.getItem('calculator-history');
+          return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      saveHistory() {
+        try {
+          localStorage.setItem('calculator-history', JSON.stringify(this.history));
+        } catch (e) {
+          console.error('Failed to save history:', e);
+        }
+      }
+
+      renderHistory() {
+        if (this.history.length === 0) {
+          this.historyList.innerHTML = '<li class="history-empty">No calculations yet</li>';
+          return;
+        }
+
+        this.historyList.innerHTML = this.history.map(item => `
+          <li class="history-item">
+            <div class="history-expression">${item.expression}</div>
+            <div class="history-result">= ${item.result}</div>
+          </li>
+        `).join('');
+      }
+    }
+
+    new Calculator();
+  </script>
+</body>
+</html>
