@@ -28,17 +28,3 @@ jobs:
 
             Follow the guidelines in CLAUDE.md. Include "Closes #${{ github.event.issue.number }}" in the PR description.
           claude_args: "--allowedTools Bash,Write,Edit,Read,MultiEdit"
-
-      # Find the PR created for this issue and enable auto-merge
-      - name: Enable auto-merge
-        run: |
-          # Find open PRs that mention this issue
-          PR_NUMBER=$(gh pr list --state open --search "issue #${{ github.event.issue.number }}" --json number --jq '.[0].number')
-          if [ -n "$PR_NUMBER" ]; then
-            echo "Enabling auto-merge for PR #$PR_NUMBER"
-            gh pr merge "$PR_NUMBER" --auto --squash
-          else
-            echo "No PR found for issue #${{ github.event.issue.number }}"
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
