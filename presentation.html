@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Requests - Slopify Presentation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      height: 100vh;
+      padding: 4rem;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    h1 {
+      font-size: 4rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(90deg, #f472b6, #a78bfa, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: 3rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      color: #e2e8f0;
+    }
+
+    h3 {
+      font-size: 2rem;
+      color: #a78bfa;
+      margin-bottom: 1rem;
+    }
+
+    p, li {
+      font-size: 1.75rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+      max-width: 900px;
+    }
+
+    .subtitle {
+      font-size: 1.5rem;
+      color: #94a3b8;
+      margin-top: 1rem;
+    }
+
+    .big-text {
+      font-size: 2.5rem;
+      color: #f8fafc;
+      max-width: 1000px;
+      line-height: 1.5;
+    }
+
+    .highlight {
+      color: #f472b6;
+      font-weight: 600;
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin-top: 2rem;
+    }
+
+    .comparison-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      padding: 2rem;
+    }
+
+    .comparison-box h3 {
+      margin-bottom: 1.5rem;
+    }
+
+    .comparison-box.old {
+      opacity: 0.6;
+    }
+
+    .comparison-box.new {
+      border-color: #a78bfa;
+      box-shadow: 0 0 30px rgba(167, 139, 250, 0.2);
+    }
+
+    .comparison-box ul {
+      list-style: none;
+      text-align: left;
+    }
+
+    .comparison-box li {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .comparison-box li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: #a78bfa;
+    }
+
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+      margin-top: 2rem;
+    }
+
+    .flow-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0.75rem;
+      padding: 1rem 2rem;
+      font-size: 1.25rem;
+      min-width: 400px;
+    }
+
+    .flow-arrow {
+      color: #a78bfa;
+      font-size: 1.5rem;
+    }
+
+    .flow-item.highlight-box {
+      border-color: #22d3ee;
+      background: rgba(34, 211, 238, 0.1);
+    }
+
+    .bullet-list {
+      list-style: none;
+      text-align: left;
+      margin-top: 2rem;
+    }
+
+    .bullet-list li {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      padding-left: 2rem;
+      position: relative;
+    }
+
+    .bullet-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #f472b6;
+    }
+
+    .url {
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 2.5rem;
+      color: #22d3ee;
+      background: rgba(34, 211, 238, 0.1);
+      padding: 1rem 2rem;
+      border-radius: 0.5rem;
+      margin: 2rem 0;
+    }
+
+    .demo-label {
+      background: linear-gradient(90deg, #f472b6, #a78bfa);
+      color: white;
+      font-size: 1.25rem;
+      font-weight: 600;
+      padding: 0.5rem 1.5rem;
+      border-radius: 2rem;
+      margin-bottom: 2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .quote-box {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      padding: 2rem;
+      text-align: left;
+    }
+
+    .quote-text {
+      font-size: 1.5rem;
+      line-height: 1.5;
+      font-style: italic;
+      color: #e2e8f0;
+      margin-bottom: 1.5rem;
+    }
+
+    .quote-author {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #a78bfa;
+      margin-bottom: 0.25rem;
+    }
+
+    .quote-affiliation {
+      font-size: 1rem;
+      color: #64748b;
+    }
+
+    .progress {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .progress-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .progress-dot.active {
+      background: #a78bfa;
+    }
+
+    .nav-hint {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.875rem;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-top: 2rem;
+      text-align: left;
+    }
+
+    .stat {
+      font-size: 4rem;
+      font-weight: 700;
+      color: #22d3ee;
+    }
+
+    .closing-links {
+      margin-top: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .closing-links a {
+      color: #22d3ee;
+      text-decoration: none;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Slide 1: Title -->
+  <div class="slide active">
+    <h1>SaaS as a Service</h1>
+    <h2>Shipping Software, "Engineer Included"</h2>
+    <p class="subtitle">Felix Weinberger</p>
+  </div>
+
+  <!-- Slide 2: The Shift -->
+  <div class="slide">
+    <h2>From Pull Request to Prompt Request</h2>
+    <div class="comparison">
+      <div class="comparison-box old">
+        <h3>Pull Request</h3>
+        <ul>
+          <li>"Here's my code"</li>
+          <li>You write it</li>
+          <li>Review the diff</li>
+        </ul>
+      </div>
+      <div class="comparison-box new">
+        <h3>Prompt Request</h3>
+        <ul>
+          <li>"Here's what I want"</li>
+          <li>Claude writes it</li>
+          <li>Review the result</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: Demo -->
+  <div class="slide">
+    <div class="demo-label">Live Demo</div>
+    <h2>Apps Built by Prompts</h2>
+    <div class="url">slopify.felixweinberger.com</div>
+    <p>Every app was built by Claude from a one-sentence prompt.<br>Persistence, login, the works.</p>
+  </div>
+
+  <!-- Slide 4: The Twist -->
+  <div class="slide">
+    <h2>The Twist</h2>
+    <ul class="bullet-list">
+      <li>I didn't open Claude Code</li>
+      <li>I didn't open an IDE</li>
+      <li>I didn't write any code</li>
+      <li>I just <span class="highlight">described what I wanted</span></li>
+    </ul>
+  </div>
+
+  <!-- Slide 5: Check First Build -->
+  <div class="slide">
+    <div class="demo-label">Live Demo</div>
+    <h2>Did Claude Finish?</h2>
+    <p class="big-text">I submitted 3 prompt requests before this talk...</p>
+    <p style="margin-top: 2rem; color: #94a3b8;">Let's check if they're live yet</p>
+  </div>
+
+  <!-- Slide 6: The Shift is Real -->
+  <div class="slide">
+    <div style="display: flex; gap: 3rem; max-width: 1100px;">
+      <div class="quote-box">
+        <p class="quote-text">
+          "All computer users will have the ability to develop small software tools from scratch."
+        </p>
+        <p class="quote-author">Geoffrey Litt</p>
+        <p class="quote-affiliation">Researcher, Ink & Switch</p>
+      </div>
+      <div class="quote-box">
+        <p class="quote-text">
+          "More code will be written in the next few months than in the entire history of computers."
+        </p>
+        <p class="quote-author">Andrew Chen</p>
+        <p class="quote-affiliation">General Partner, a16z</p>
+      </div>
+    </div>
+    <div style="margin-top: 3rem; background: rgba(255,255,255,0.05); padding: 1.25rem 2rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.1);">
+      <p style="font-size: 1.35rem; color: #94a3b8;">
+        <span style="color: #22d3ee; font-size: 1.75rem; font-weight: 700;">25%</span> of YC's current batch report <span style="color: #22d3ee; font-weight: 600;">95%+ AI-generated</span> codebases
+      </p>
+    </div>
+  </div>
+
+  <!-- Slide 7: Vision -->
+  <div class="slide">
+    <h2>Hyper-Personalized Software</h2>
+    <p class="big-text">
+      If creation cost goes to <span class="highlight">zero</span>...
+    </p>
+    <p class="big-text" style="margin-top: 2rem;">
+      We should expect <span class="highlight">millions of apps</span> with 3-10 users each.
+    </p>
+    <p style="margin-top: 3rem; color: #94a3b8; font-size: 1.5rem;">
+      Your team's internal tool. Your family's chore tracker.<br>Your D&D group's campaign manager.
+    </p>
+  </div>
+
+  <!-- Slide 8: Audience Turn -->
+  <div class="slide">
+    <h2>Your Turn</h2>
+    <div class="url">slopify.felixweinberger.com</div>
+    <ul class="bullet-list">
+      <li>Log in with GitHub</li>
+      <li>Submit a Prompt Request</li>
+      <li>New apps, UI changes, whatever you want</li>
+    </ul>
+    <p style="margin-top: 2rem; color: #f472b6; font-size: 1.5rem;">I'll approve a few live</p>
+  </div>
+
+  <!-- Slide 9: The Stack -->
+  <div class="slide">
+    <h2>The Stack</h2>
+    <div class="flow">
+      <div class="flow-item">GitHub Issue <span style="color: #94a3b8;">(your prompt)</span></div>
+      <div class="flow-arrow">↓ <span style="font-size: 1rem; color: #94a3b8;">"approved" label</span></div>
+      <div class="flow-item">GitHub Actions + Claude Code Action</div>
+      <div class="flow-arrow">↓ <span style="font-size: 1rem; color: #94a3b8;">Claude writes code, opens PR</span></div>
+      <div class="flow-item">CI → Auto-merge</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-item highlight-box">Cloudflare Pages + D1</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-item" style="border-color: #22d3ee; color: #22d3ee;">Live in ~5 minutes</div>
+    </div>
+  </div>
+
+  <!-- Slide 10: Cloudflare Details -->
+  <div class="slide">
+    <h2>Zero Ops, Zero Cost</h2>
+    <ul class="bullet-list">
+      <li>Pages Functions = Workers under the hood</li>
+      <li>D1 for persistence (SQLite at the edge)</li>
+      <li>OAuth sessions stored in D1</li>
+      <li><span class="highlight">$0</span> hosting on free tier</li>
+      <li><span class="highlight">~$0.50</span> per app in API calls</li>
+    </ul>
+    <p style="margin-top: 3rem; color: #94a3b8; font-size: 1.5rem;">
+      Claude writes the Workers code. Cloudflare runs it.
+    </p>
+  </div>
+
+  <!-- Slide 11: Check Back -->
+  <div class="slide">
+    <div class="demo-label">Live Demo</div>
+    <h2>Let's See What Claude Built</h2>
+    <div class="url">slopify.felixweinberger.com</div>
+    <p style="color: #94a3b8;">Refresh and try the new apps</p>
+  </div>
+
+  <!-- Slide 12: Closing -->
+  <div class="slide">
+    <h1>SaaS as a Service</h1>
+    <p class="big-text">Shipping Software, "Engineer Included"</p>
+    <div class="closing-links">
+      <a href="https://github.com/felixweinberger/slopify">github.com/felixweinberger/slopify</a>
+    </div>
+    <p style="margin-top: 3rem; color: #94a3b8;">Thanks!</p>
+  </div>
+
+  <div class="progress" id="progress"></div>
+  <div class="nav-hint">← → to navigate</div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    let current = 0;
+
+    function updateProgress() {
+      const progress = document.getElementById('progress');
+      progress.innerHTML = slides.length > 0
+        ? Array.from(slides).map((_, i) =>
+            `<div class="progress-dot ${i === current ? 'active' : ''}"></div>`
+          ).join('')
+        : '';
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= slides.length) return;
+      slides[current].classList.remove('active');
+      current = index;
+      slides[current].classList.add('active');
+      updateProgress();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        goTo(current + 1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goTo(current - 1);
+      }
+    });
+
+    // Touch support for mobile
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+    document.addEventListener('touchend', (e) => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) goTo(current + 1);
+        else goTo(current - 1);
+      }
+    });
+
+    updateProgress();
+  </script>
+</body>
+</html>
