@@ -51,8 +51,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     FROM messages m
     JOIN users uf ON m.from_user_id = uf.id
     JOIN users ut ON m.to_user_id = ut.id
-    WHERE (m.from_user_id = ? AND m.to_user_id = ?)
-       OR (m.from_user_id = ? AND m.to_user_id = ?)
+    WHERE ((m.from_user_id = ? AND m.to_user_id = ?)
+       OR (m.from_user_id = ? AND m.to_user_id = ?))
   `;
 
   const params: (string | number)[] = [userId, otherUser.id, otherUser.id, userId];

@@ -375,7 +375,12 @@
           showError('Please <a href="/">log in</a> to use the chat.');
           return;
         }
-        currentUser = await meResponse.json();
+        const meData = await meResponse.json();
+        if (!meData.user) {
+          showError('Please <a href="/">log in</a> to use the chat.');
+          return;
+        }
+        currentUser = meData.user;
 
         // Check if we're starting a chat from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
