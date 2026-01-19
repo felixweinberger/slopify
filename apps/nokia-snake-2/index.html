@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nokia Snake 2 - Slopify</title>
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 400px;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      font-size: 1.1rem;
+    }
+
+    .score-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .score-label {
+      font-size: 0.85rem;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .score-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--yellow);
+    }
+
+    .game-board {
+      position: relative;
+      background: #9bb563;
+      border: 4px solid #2d3b1f;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    #gameCanvas {
+      display: block;
+    }
+
+    .game-over-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      border-radius: 4px;
+    }
+
+    .game-over-overlay.show {
+      display: flex;
+    }
+
+    .game-over-overlay h2 {
+      margin: 0;
+      color: var(--pink);
+      font-size: 2rem;
+    }
+
+    .game-over-overlay p {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .arrow-buttons {
+      display: grid;
+      grid-template-areas:
+        ". up ."
+        "left down right";
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .arrow-btn {
+      width: 60px;
+      height: 60px;
+      background: var(--purple);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .arrow-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .arrow-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .arrow-btn.up { grid-area: up; }
+    .arrow-btn.down { grid-area: down; }
+    .arrow-btn.left { grid-area: left; }
+    .arrow-btn.right { grid-area: right; }
+
+    .start-btn {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      background: var(--cyan);
+      color: black;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .start-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .start-btn:active {
+      transform: translateY(0);
+    }
+
+    .instructions {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      max-width: 400px;
+      margin-top: 1rem;
+    }
+
+    .instructions p {
+      margin: 0.5rem 0;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 600px) {
+      .game-board {
+        width: 90vw !important;
+        height: 90vw !important;
+      }
+
+      #gameCanvas {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/">← Back to Slopify</a>
+      <h1>🐍 Nokia Snake 2</h1>
+    </header>
+    <main>
+      <div class="game-container">
+        <div class="game-info">
+          <div class="score-item">
+            <div class="score-label">Score</div>
+            <div class="score-value" id="score">0</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">High Score</div>
+            <div class="score-value" id="highScore">0</div>
+          </div>
+        </div>
+
+        <div class="game-board">
+          <canvas id="gameCanvas" width="400" height="400"></canvas>
+          <div class="game-over-overlay" id="gameOverOverlay">
+            <h2>Game Over!</h2>
+            <p id="finalScore">Score: 0</p>
+            <button class="start-btn" onclick="startGame()">Play Again</button>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="arrow-buttons">
+            <button class="arrow-btn up" onclick="changeDirection('UP')">▲</button>
+            <button class="arrow-btn left" onclick="changeDirection('LEFT')">◄</button>
+            <button class="arrow-btn down" onclick="changeDirection('DOWN')">▼</button>
+            <button class="arrow-btn right" onclick="changeDirection('RIGHT')">►</button>
+          </div>
+          <button class="start-btn" id="startBtn" onclick="startGame()">Start Game</button>
+        </div>
+
+        <div class="instructions">
+          <p><strong>How to Play:</strong></p>
+          <p>Use arrow keys or buttons to control the snake</p>
+          <p>Eat the food to grow and score points</p>
+          <p>The snake wraps around the edges (Nokia style!)</p>
+          <p>Don't bite yourself!</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreElement = document.getElementById('score');
+    const highScoreElement = document.getElementById('highScore');
+    const finalScoreElement = document.getElementById('finalScore');
+    const gameOverOverlay = document.getElementById('gameOverOverlay');
+    const startBtn = document.getElementById('startBtn');
+
+    const GRID_SIZE = 20;
+    const CELL_SIZE = canvas.width / GRID_SIZE;
+    const GAME_SPEED = 150;
+
+    let snake = [];
+    let food = {};
+    let direction = 'RIGHT';
+    let nextDirection = 'RIGHT';
+    let score = 0;
+    let highScore = 0;
+    let gameLoop = null;
+    let isGameRunning = false;
+
+    function init() {
+      highScore = parseInt(localStorage.getItem('snakeHighScore') || '0');
+      highScoreElement.textContent = highScore;
+
+      snake = [
+        { x: 10, y: 10 },
+        { x: 9, y: 10 },
+        { x: 8, y: 10 }
+      ];
+      direction = 'RIGHT';
+      nextDirection = 'RIGHT';
+      score = 0;
+      scoreElement.textContent = score;
+      spawnFood();
+      draw();
+    }
+
+    function spawnFood() {
+      let validPosition = false;
+      while (!validPosition) {
+        food = {
+          x: Math.floor(Math.random() * GRID_SIZE),
+          y: Math.floor(Math.random() * GRID_SIZE)
+        };
+        validPosition = !snake.some(segment => segment.x === food.x && segment.y === food.y);
+      }
+    }
+
+    function draw() {
+      ctx.fillStyle = '#9bb563';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#2d3b1f';
+      snake.forEach((segment, index) => {
+        ctx.fillRect(
+          segment.x * CELL_SIZE + 1,
+          segment.y * CELL_SIZE + 1,
+          CELL_SIZE - 2,
+          CELL_SIZE - 2
+        );
+      });
+
+      ctx.fillStyle = '#c73e1d';
+      ctx.fillRect(
+        food.x * CELL_SIZE + 1,
+        food.y * CELL_SIZE + 1,
+        CELL_SIZE - 2,
+        CELL_SIZE - 2
+      );
+    }
+
+    function update() {
+      direction = nextDirection;
+
+      const head = { ...snake[0] };
+
+      switch (direction) {
+        case 'UP':
+          head.y--;
+          break;
+        case 'DOWN':
+          head.y++;
+          break;
+        case 'LEFT':
+          head.x--;
+          break;
+        case 'RIGHT':
+          head.x++;
+          break;
+      }
+
+      if (head.x < 0) head.x = GRID_SIZE - 1;
+      if (head.x >= GRID_SIZE) head.x = 0;
+      if (head.y < 0) head.y = GRID_SIZE - 1;
+      if (head.y >= GRID_SIZE) head.y = 0;
+
+      if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+        gameOver();
+        return;
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        scoreElement.textContent = score;
+
+        if (score > highScore) {
+          highScore = score;
+          highScoreElement.textContent = highScore;
+          localStorage.setItem('snakeHighScore', highScore);
+        }
+
+        spawnFood();
+      } else {
+        snake.pop();
+      }
+
+      draw();
+    }
+
+    function startGame() {
+      if (isGameRunning) {
+        return;
+      }
+
+      gameOverOverlay.classList.remove('show');
+      startBtn.textContent = 'Restart Game';
+      isGameRunning = true;
+
+      init();
+
+      if (gameLoop) {
+        clearInterval(gameLoop);
+      }
+
+      gameLoop = setInterval(update, GAME_SPEED);
+    }
+
+    function gameOver() {
+      isGameRunning = false;
+      clearInterval(gameLoop);
+      finalScoreElement.textContent = `Score: ${score}`;
+      gameOverOverlay.classList.add('show');
+    }
+
+    function changeDirection(newDirection) {
+      if (!isGameRunning) {
+        startGame();
+        return;
+      }
+
+      if (newDirection === 'UP' && direction !== 'DOWN') {
+        nextDirection = 'UP';
+      } else if (newDirection === 'DOWN' && direction !== 'UP') {
+        nextDirection = 'DOWN';
+      } else if (newDirection === 'LEFT' && direction !== 'RIGHT') {
+        nextDirection = 'LEFT';
+      } else if (newDirection === 'RIGHT' && direction !== 'LEFT') {
+        nextDirection = 'RIGHT';
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        changeDirection('UP');
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        changeDirection('DOWN');
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        changeDirection('LEFT');
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        changeDirection('RIGHT');
+      } else if (e.key === ' ' && !isGameRunning) {
+        e.preventDefault();
+        startGame();
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>
