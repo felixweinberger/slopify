@@ -1,0 +1,58 @@
+name: Fix Merge Conflicts
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  fix-conflicts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - name: Find conflicted PRs
+        id: find
+        run: |
+          # Wait a moment for GitHub to update mergeable status
+          sleep 10
+
+          # Get open PRs from Claude that have conflicts
+          CONFLICTED=$(gh pr list \
+            --author "claude[bot]" \
+            --state open \
+            --json number,mergeable \
+            --jq '.[] | select(.mergeable == "CONFLICTING") | .number' \
+            --repo ${{ github.repository }})
+
+          if [ -n "$CONFLICTED" ]; then
+            echo "Conflicted PRs: $CONFLICTED"
+            echo "prs=$CONFLICTED" >> $GITHUB_OUTPUT
+          else
+            echo "No conflicted PRs"
+            echo "prs=" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v4
+        if: steps.find.outputs.prs != ''
+
+      - name: Fix each conflicted PR
+        if: steps.find.outputs.prs != ''
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            The following PRs have merge conflicts and need to be fixed: ${{ steps.find.outputs.prs }}
+
+            For each PR:
+            1. Checkout the PR branch
+            2. Rebase onto main
+            3. Resolve any conflicts by keeping both changes where sensible
+            4. Push the fixed branch
+
+            Use `gh pr checkout <number>` to checkout each PR.
+          claude_args: "--allowedTools Bash,Write,Edit,Read,MultiEdit"
