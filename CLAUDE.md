@@ -104,6 +104,6 @@ Before committing:
 
 When creating a PR:
 - Use a clear title describing the app
-- Reference the issue number
+- Include `Closes #N` in the PR body (where N is the issue number) to auto-close the issue on merge
 - Include a brief description of the app's functionality
 - The PR will auto-merge after CI passes
