@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Counter - Slopify</title>
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .counter-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 500px;
+      margin: 2rem auto;
+    }
+
+    .counter-display {
+      font-size: 6rem;
+      font-weight: bold;
+      color: var(--cyan);
+      text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+      min-width: 200px;
+      text-align: center;
+    }
+
+    .counter-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .counter-btn {
+      font-size: 2rem;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.2s, box-shadow 0.2s;
+      min-width: 80px;
+    }
+
+    .counter-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .counter-btn:active {
+      transform: translateY(0);
+    }
+
+    .increment-btn {
+      background: var(--cyan);
+      color: #000;
+    }
+
+    .decrement-btn {
+      background: var(--pink);
+      color: #000;
+    }
+
+    .reset-btn {
+      background: var(--yellow);
+      color: #000;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    header a {
+      color: var(--purple);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    header a:hover {
+      color: var(--pink);
+    }
+
+    header h1 {
+      color: var(--yellow);
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/">← Back to Slopify</a>
+      <h1>🔢 Counter</h1>
+    </header>
+    <main>
+      <div class="counter-container">
+        <div class="counter-display" id="counter">0</div>
+        <div class="counter-buttons">
+          <button class="counter-btn decrement-btn" id="decrementBtn">-</button>
+          <button class="counter-btn reset-btn" id="resetBtn">Reset</button>
+          <button class="counter-btn increment-btn" id="incrementBtn">+</button>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    const counterDisplay = document.getElementById('counter');
+    const incrementBtn = document.getElementById('incrementBtn');
+    const decrementBtn = document.getElementById('decrementBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const STORAGE_KEY = 'slopify-counter-value';
+
+    let count = parseInt(localStorage.getItem(STORAGE_KEY)) || 0;
+
+    function updateDisplay() {
+      counterDisplay.textContent = count;
+      localStorage.setItem(STORAGE_KEY, count);
+    }
+
+    function increment() {
+      count++;
+      updateDisplay();
+    }
+
+    function decrement() {
+      count--;
+      updateDisplay();
+    }
+
+    function reset() {
+      count = 0;
+      updateDisplay();
+    }
+
+    incrementBtn.addEventListener('click', increment);
+    decrementBtn.addEventListener('click', decrement);
+    resetBtn.addEventListener('click', reset);
+
+    updateDisplay();
+  </script>
+</body>
+</html>
