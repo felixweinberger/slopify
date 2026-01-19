@@ -6,8 +6,8 @@ on:
 
 jobs:
   close-issue:
-    # Only run if PR was merged (not just closed) and by Claude
-    if: github.event.pull_request.merged == true && github.actor == 'claude[bot]'
+    # Only run if PR was merged (not just closed) and created by Claude
+    if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'claude[bot]'
     runs-on: ubuntu-latest
     permissions:
       issues: write
