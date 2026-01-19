@@ -4,7 +4,7 @@ Sloppy apps built by Claude.
 
 ## What is this?
 
-Slopify is a collection of small frontend apps, each built entirely by Claude through GitHub Actions. Submit an app idea as a GitHub issue, and Claude will implement it automatically.
+Slopify is a collection of small fullstack apps, each built entirely by Claude through GitHub Actions. Submit an app idea as a GitHub issue, and Claude will implement it automatically.
 
 ## How it works
 
