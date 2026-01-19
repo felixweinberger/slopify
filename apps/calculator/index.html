@@ -209,7 +209,10 @@
     </main>
   </div>
 
+  <script src="../slopify-sdk.js"></script>
   <script>
+    let sdk;
+
     class Calculator {
       constructor() {
         this.displayValue = '0';
@@ -217,14 +220,14 @@
         this.operator = null;
         this.waitingForOperand = false;
         this.expression = '';
-        this.history = this.loadHistory();
+        this.history = [];
 
         this.display = document.getElementById('display');
         this.expressionDisplay = document.getElementById('expression');
         this.historyList = document.getElementById('history-list');
 
         this.init();
-        this.renderHistory();
+        this.loadHistory();
       }
 
       init() {
@@ -409,20 +412,17 @@
         this.renderHistory();
       }
 
-      loadHistory() {
-        try {
-          const saved = localStorage.getItem('calculator-history');
-          return saved ? JSON.parse(saved) : [];
-        } catch (e) {
-          return [];
+      async loadHistory() {
+        if (sdk?.isLoggedIn) {
+          const saved = await sdk.get('history');
+          this.history = saved || [];
         }
+        this.renderHistory();
       }
 
       saveHistory() {
-        try {
-          localStorage.setItem('calculator-history', JSON.stringify(this.history));
-        } catch (e) {
-          console.error('Failed to save history:', e);
+        if (sdk?.isLoggedIn) {
+          sdk.set('history', this.history);
         }
       }
 
@@ -441,7 +441,11 @@
       }
     }
 
-    new Calculator();
+    // Initialize with SDK
+    (async () => {
+      sdk = await new SlopifySDK('calculator').init();
+      new Calculator();
+    })();
   </script>
 </body>
 </html>

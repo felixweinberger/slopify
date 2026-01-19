@@ -196,6 +196,7 @@
     </main>
   </div>
 
+  <script src="../slopify-sdk.js"></script>
   <script>
     const timerDisplay = document.getElementById('timer');
     const statusDisplay = document.getElementById('status');
@@ -215,28 +216,40 @@
     let isWorkTime = true;
     let pomodorosCompleted = 0;
     let totalFocusTime = 0;
+    let sdk;
+    let allStats = {}; // Stats keyed by date
 
-    // Load stats from localStorage
-    function loadStats() {
+    // Load stats from backend
+    async function loadStats() {
       const today = new Date().toDateString();
-      const savedDate = localStorage.getItem('pomodoroDate');
 
-      if (savedDate === today) {
-        pomodorosCompleted = parseInt(localStorage.getItem('pomodorosCompleted') || '0');
-        totalFocusTime = parseInt(localStorage.getItem('totalFocusTime') || '0');
+      if (sdk?.isLoggedIn) {
+        allStats = await sdk.get('stats') || {};
+        const todayStats = allStats[today];
+        if (todayStats) {
+          pomodorosCompleted = todayStats.pomodoros || 0;
+          totalFocusTime = todayStats.focusTime || 0;
+        } else {
+          pomodorosCompleted = 0;
+          totalFocusTime = 0;
+        }
       } else {
-        // New day, reset stats
         pomodorosCompleted = 0;
         totalFocusTime = 0;
-        localStorage.setItem('pomodoroDate', today);
       }
 
       updateStatsDisplay();
     }
 
     function saveStats() {
-      localStorage.setItem('pomodorosCompleted', pomodorosCompleted.toString());
-      localStorage.setItem('totalFocusTime', totalFocusTime.toString());
+      if (sdk?.isLoggedIn) {
+        const today = new Date().toDateString();
+        allStats[today] = {
+          pomodoros: pomodorosCompleted,
+          focusTime: totalFocusTime
+        };
+        sdk.set('stats', allStats);
+      }
     }
 
     function updateStatsDisplay() {
@@ -387,9 +400,12 @@
     }
 
     // Initialize
-    loadStats();
-    updateDisplay();
-    updateStatus();
+    (async () => {
+      sdk = await new SlopifySDK('pomodoro-timer').init();
+      await loadStats();
+      updateDisplay();
+      updateStatus();
+    })();
   </script>
 </body>
 </html>

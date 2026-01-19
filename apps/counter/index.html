@@ -105,19 +105,21 @@
       </div>
     </main>
   </div>
+  <script src="../slopify-sdk.js"></script>
   <script>
     const counterDisplay = document.getElementById('counter');
     const incrementBtn = document.getElementById('incrementBtn');
     const decrementBtn = document.getElementById('decrementBtn');
     const resetBtn = document.getElementById('resetBtn');
 
-    const STORAGE_KEY = 'slopify-counter-value';
-
-    let count = parseInt(localStorage.getItem(STORAGE_KEY)) || 0;
+    let count = 0;
+    let sdk;
 
     function updateDisplay() {
       counterDisplay.textContent = count;
-      localStorage.setItem(STORAGE_KEY, count);
+      if (sdk?.isLoggedIn) {
+        sdk.set('count', count);
+      }
     }
 
     function increment() {
@@ -139,7 +141,17 @@
     decrementBtn.addEventListener('click', decrement);
     resetBtn.addEventListener('click', reset);
 
-    updateDisplay();
+    // Initialize with SDK
+    (async () => {
+      sdk = await new SlopifySDK('counter').init();
+      if (sdk.isLoggedIn) {
+        const saved = await sdk.get('count');
+        if (saved !== null) {
+          count = saved;
+        }
+      }
+      updateDisplay();
+    })();
   </script>
 </body>
 </html>

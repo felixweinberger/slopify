@@ -166,14 +166,13 @@
       </div>
     </main>
   </div>
+  <script src="../slopify-sdk.js"></script>
   <script>
     const API_BASE = 'https://api.frankfurter.app';
-    const CACHE_KEY = 'currency_rates';
-    const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
-    const PREFS_KEY = 'currency_prefs';
 
     let rates = {};
     let lastUpdated = null;
+    let sdk;
 
     // Popular currencies to show
     const currencies = [
@@ -214,8 +213,9 @@
 
     // Initialize the app
     async function init() {
+      sdk = await new SlopifySDK('currency-converter').init();
       populateCurrencyDropdowns();
-      loadPreferences();
+      await loadPreferences();
       await fetchRates();
 
       if (Object.keys(rates).length > 0) {
@@ -242,44 +242,33 @@
     }
 
     // Load user preferences
-    function loadPreferences() {
-      const prefs = localStorage.getItem(PREFS_KEY);
-      if (prefs) {
-        const { fromCurrency, toCurrency, amount } = JSON.parse(prefs);
-        elements.fromCurrency.value = fromCurrency || 'USD';
-        elements.toCurrency.value = toCurrency || 'EUR';
-        elements.fromAmount.value = amount || 1;
-      } else {
-        elements.fromCurrency.value = 'USD';
-        elements.toCurrency.value = 'EUR';
+    async function loadPreferences() {
+      if (sdk?.isLoggedIn) {
+        const prefs = await sdk.get('preferences');
+        if (prefs) {
+          elements.fromCurrency.value = prefs.fromCurrency || 'USD';
+          elements.toCurrency.value = prefs.toCurrency || 'EUR';
+          elements.fromAmount.value = prefs.amount || 1;
+          return;
+        }
       }
+      elements.fromCurrency.value = 'USD';
+      elements.toCurrency.value = 'EUR';
     }
 
     // Save user preferences
     function savePreferences() {
-      const prefs = {
-        fromCurrency: elements.fromCurrency.value,
-        toCurrency: elements.toCurrency.value,
-        amount: elements.fromAmount.value
-      };
-      localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+      if (sdk?.isLoggedIn) {
+        sdk.set('preferences', {
+          fromCurrency: elements.fromCurrency.value,
+          toCurrency: elements.toCurrency.value,
+          amount: elements.fromAmount.value
+        });
+      }
     }
 
     // Fetch exchange rates
     async function fetchRates() {
-      // Check cache first
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached) {
-        const { data, timestamp } = JSON.parse(cached);
-        if (Date.now() - timestamp < CACHE_DURATION) {
-          rates = data;
-          lastUpdated = new Date(timestamp);
-          updateLastUpdatedDisplay();
-          return;
-        }
-      }
-
-      // Fetch fresh rates
       try {
         const response = await fetch(`${API_BASE}/latest`);
         if (!response.ok) throw new Error('Failed to fetch rates');
@@ -287,13 +276,6 @@
         const data = await response.json();
         rates = { ...data.rates, [data.base]: 1 };
         lastUpdated = new Date();
-
-        // Cache the rates
-        localStorage.setItem(CACHE_KEY, JSON.stringify({
-          data: rates,
-          timestamp: Date.now()
-        }));
-
         updateLastUpdatedDisplay();
       } catch (err) {
         showError('Failed to load exchange rates. Please try again later.');
