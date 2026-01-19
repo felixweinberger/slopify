@@ -1,0 +1,9 @@
+{
+  "name": "slopify",
+  "version": "1.0.0",
+  "description": "Sloppy apps built by Claude",
+  "scripts": {
+    "build": "node scripts/build-registry.js"
+  },
+  "private": true
+}

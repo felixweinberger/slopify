@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slopify - Sloppy Apps Built by Claude</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Slopify</h1>
+      <p class="tagline">sloppy apps built by claude</p>
+    </header>
+
+    <section class="section">
+      <h2>What is this?</h2>
+      <p>
+        Slopify is a collection of small, single-purpose web apps.
+        The twist? They're all built by Claude, an AI, based on requests from humans.
+      </p>
+      <p>
+        No polish. No overthinking. Just functional little tools that solve real problems.
+        Sometimes they're beautiful. Sometimes they're... sloppy. That's the point.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Request an App</h2>
+      <p>Got an idea for a simple web app? Here's how to make it happen:</p>
+      <ol class="steps">
+        <li>Open a <a href="https://github.com/felixweinberger/slopify/issues/new" target="_blank">new GitHub issue</a></li>
+        <li>Describe what you want the app to do</li>
+        <li>Wait for approval (we'll add the "approved" label)</li>
+        <li>Claude builds it and opens a PR</li>
+        <li>If CI passes, it auto-deploys here</li>
+      </ol>
+      <p style="margin-top: 1rem; opacity: 0.7;">
+        Keep it simple. Single-page apps only. No backend (for now).
+        Think: timers, calculators, converters, games, tools.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Apps</h2>
+      <div id="apps-container">
+        <div class="empty-state">Loading apps...</div>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        Built with chaos by <a href="https://github.com/felixweinberger/slopify" target="_blank">Claude + GitHub Actions</a>
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    async function loadApps() {
+      const container = document.getElementById('apps-container');
+
+      try {
+        const response = await fetch('/apps/registry.json');
+        const apps = await response.json();
+
+        if (apps.length === 0) {
+          container.innerHTML = '<div class="empty-state">No apps yet. Be the first to request one!</div>';
+          return;
+        }
+
+        container.innerHTML = '<div class="apps-grid">' +
+          apps.map(app => `
+            <a href="${app.path}" class="app-card">
+              <h3>${app.icon || ''} ${app.name}</h3>
+              <p>${app.description}</p>
+            </a>
+          `).join('') +
+        '</div>';
+      } catch (err) {
+        container.innerHTML = '<div class="empty-state">No apps yet. Be the first to request one!</div>';
+      }
+    }
+
+    loadApps();
+  </script>
+</body>
+</html>

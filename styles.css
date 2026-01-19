@@ -1,0 +1,153 @@
+:root {
+  --purple: #8b5cf6;
+  --pink: #ec4899;
+  --yellow: #fbbf24;
+  --cyan: #22d3ee;
+  --dark: #1e1b4b;
+  --light: #faf5ff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, var(--dark) 0%, #312e81 100%);
+  color: var(--light);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+header {
+  text-align: center;
+  padding: 4rem 0;
+}
+
+h1 {
+  font-size: 4rem;
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--pink), var(--yellow), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.tagline {
+  font-size: 1.5rem;
+  color: var(--purple);
+  opacity: 0.9;
+}
+
+.section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section h2 {
+  color: var(--yellow);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.section p {
+  margin-bottom: 1rem;
+}
+
+.section a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+.section a:hover {
+  text-decoration: underline;
+}
+
+.steps {
+  list-style: none;
+  counter-reset: step;
+}
+
+.steps li {
+  counter-increment: step;
+  padding: 0.75rem 0;
+  padding-left: 2.5rem;
+  position: relative;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: var(--pink);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.875rem;
+}
+
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.app-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: var(--light);
+  transition: transform 0.2s, background 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.app-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.app-card h3 {
+  color: var(--cyan);
+  margin-bottom: 0.5rem;
+}
+
+.app-card p {
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  opacity: 0.6;
+  font-size: 0.875rem;
+}
+
+footer a {
+  color: var(--cyan);
+  text-decoration: none;
+}
