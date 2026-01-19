@@ -57,15 +57,14 @@ Or if using Cloudflare for the domain already, Pages will auto-configure it.
 
 ### Tasks
 1. [x] Create plan.md
-2. [ ] Initialize repo with basic structure
-3. [ ] Create landing page (index.html)
-4. [ ] Create example app (calculator)
-5. [ ] Create build script for registry.json
-6. [ ] Set up package.json with build script
-7. [ ] Initialize git repo
-8. [ ] Create GitHub repo and push
-9. [ ] Connect to Cloudflare Pages
-10. [ ] Configure custom domain
+2. [x] Initialize repo with basic structure
+3. [x] Create landing page (index.html)
+4. [x] Create build script for registry.json
+5. [x] Set up package.json with build script
+6. [x] Initialize git repo
+7. [x] Create GitHub repo and push
+8. [ ] Connect to Cloudflare Pages
+9. [ ] Configure custom domain
 
 ### Deliverable
 Push to main → auto-deploys to slopify.felixweinberger.com
