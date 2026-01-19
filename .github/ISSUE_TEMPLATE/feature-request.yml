@@ -1,0 +1,51 @@
+name: "✨ Feature Request"
+description: Suggest an enhancement to an existing app
+title: "[Feature] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Enhance an Existing App
+
+        Suggest a new feature or improvement for one of the apps on Slopify.
+
+  - type: input
+    id: app-name
+    attributes:
+      label: Which app?
+      description: Name of the existing app you want to enhance
+      placeholder: "e.g., Counter"
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: What feature do you want?
+      description: Describe the enhancement in detail
+      placeholder: |
+        Add a "double" button that multiplies the current count by 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would this be useful?
+      description: Explain the use case
+      placeholder: |
+        Sometimes I want to quickly scale up my count without clicking + many times
+    validations:
+      required: false
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Implementation details (optional)
+      description: Any specific requirements or ideas on how it should work
+      placeholder: |
+        - Button should be styled differently from +/-
+        - Maybe add keyboard shortcut 'd' for double
+    validations:
+      required: false

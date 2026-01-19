@@ -1,6 +1,6 @@
-name: "🎨 App Request"
-description: Request a new app for Slopify
-title: "[App] "
+name: "🆕 New App"
+description: Request a brand new app
+title: "[New App] "
 labels: []
 body:
   - type: markdown
