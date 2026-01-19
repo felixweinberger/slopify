@@ -20,9 +20,16 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 
-      # Auto-merge is enabled, but PR only merges after CI passes
-      # Requires branch protection with required status checks
+      # Find the PR created for this issue and enable auto-merge
       - name: Enable auto-merge
-        run: gh pr merge --auto --squash
+        run: |
+          # Find open PRs that mention this issue
+          PR_NUMBER=$(gh pr list --state open --search "issue #${{ github.event.issue.number }}" --json number --jq '.[0].number')
+          if [ -n "$PR_NUMBER" ]; then
+            echo "Enabling auto-merge for PR #$PR_NUMBER"
+            gh pr merge "$PR_NUMBER" --auto --squash
+          else
+            echo "No PR found for issue #${{ github.event.issue.number }}"
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
