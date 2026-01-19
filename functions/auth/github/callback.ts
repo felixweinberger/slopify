@@ -52,8 +52,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   // Upsert user in D1
   await env.DB.prepare(`
-    INSERT INTO users (id, username, avatar_url, access_token, created_at)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO users (id, username, avatar_url, access_token, created_at, is_public)
+    VALUES (?, ?, ?, ?, ?, 1)
     ON CONFLICT(id) DO UPDATE SET
       username = excluded.username,
       avatar_url = excluded.avatar_url,
