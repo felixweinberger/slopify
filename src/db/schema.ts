@@ -21,3 +21,15 @@ export const appData = sqliteTable('app_data', {
   index('idx_app_data_user').on(table.userId),
   index('idx_app_data_app').on(table.appId),
 ]);
+
+export const messages = sqliteTable('messages', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  fromUserId: text('from_user_id').notNull().references(() => users.id),
+  toUserId: text('to_user_id').notNull().references(() => users.id),
+  content: text('content').notNull(),
+  createdAt: integer('created_at').notNull(),
+}, (table) => [
+  index('idx_messages_from').on(table.fromUserId),
+  index('idx_messages_to').on(table.toUserId),
+  index('idx_messages_conversation').on(table.fromUserId, table.toUserId),
+]);
