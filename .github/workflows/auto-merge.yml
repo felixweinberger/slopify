@@ -3,13 +3,11 @@ name: Auto-merge Claude PRs
 on:
   pull_request:
     types: [opened]
-  push:
-    branches: [main]
 
 jobs:
   auto-merge:
     # Only auto-merge PRs created by Claude
-    if: github.event_name == 'pull_request' && github.actor == 'claude[bot]'
+    if: github.actor == 'claude[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -19,64 +17,5 @@ jobs:
         run: |
           echo "Enabling auto-merge for PR #${{ github.event.pull_request.number }}"
           gh pr merge ${{ github.event.pull_request.number }} --auto --squash --repo ${{ github.repository }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  migrate-db:
-    # Run D1 migrations on push to main
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - run: npm ci
-      - name: Apply D1 migrations
-        run: npx wrangler d1 migrations apply slopify-db --remote
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-
-  close-issue:
-    # Run on push to main (after merge) to close linked issues
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-    steps:
-      - name: Find merged PR and close linked issue
-        run: |
-          # Find the PR that was just merged (commit SHA matches)
-          PR_DATA=$(gh pr list --state merged --json number,body,author,mergeCommit --limit 10 --repo ${{ github.repository }} | \
-            jq -r --arg sha "${{ github.sha }}" '.[] | select(.mergeCommit.oid == $sha)')
-
-          if [ -z "$PR_DATA" ]; then
-            echo "No PR found for commit ${{ github.sha }}"
-            exit 0
-          fi
-
-          PR_NUM=$(echo "$PR_DATA" | jq -r '.number')
-          PR_BODY=$(echo "$PR_DATA" | jq -r '.body')
-          PR_AUTHOR=$(echo "$PR_DATA" | jq -r '.author.login')
-
-          echo "Found PR #$PR_NUM by $PR_AUTHOR"
-
-          # Only process PRs from claude[bot]
-          if [ "$PR_AUTHOR" != "claude[bot]" ]; then
-            echo "PR not from claude[bot], skipping"
-            exit 0
-          fi
-
-          # Extract issue number from PR body
-          ISSUE_NUM=$(echo "$PR_BODY" | grep -oP '(Closes|Fixes|Resolves)\s*#\K\d+' | head -1)
-
-          if [ -n "$ISSUE_NUM" ]; then
-            AUTHOR=$(gh issue view "$ISSUE_NUM" --repo ${{ github.repository }} --json author --jq '.author.login')
-            echo "Closing issue #$ISSUE_NUM (submitted by @$AUTHOR)"
-            gh issue close "$ISSUE_NUM" --repo ${{ github.repository }} \
-              --comment "✅ @$AUTHOR your request has been shipped in PR #$PR_NUM!"
-          else
-            echo "No linked issue found in PR body"
-          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
