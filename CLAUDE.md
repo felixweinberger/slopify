@@ -104,9 +104,14 @@ Before committing:
 
 When creating a PR:
 - Use a clear title describing the app
-- Include `Closes #N` in the PR body (where N is the issue number) to auto-close the issue on merge
+- Include `Closes #N` in the PR body (where N is the issue number)
 - Include a brief description of the app's functionality
 - The PR will auto-merge after CI passes
+
+**After creating the PR, close the linked issue:**
+```bash
+gh issue close <issue_number> --comment "🚀 PR #<pr_number> created! It will auto-merge after CI passes."
+```
 
 ## Important: package-lock.json
 
