@@ -1,0 +1,80 @@
+name: "🎨 App Request"
+description: Request a new app for Slopify
+title: "[App] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Request an App
+
+        Slopify apps are small, single-purpose tools built with vanilla HTML/CSS/JS.
+
+        **What works well:**
+        - Calculators, converters, generators
+        - Simple games (tic-tac-toe, memory)
+        - Productivity tools (timers, counters, checklists)
+        - Text utilities (formatters, encoders)
+
+        **Limitations:**
+        - No backend/database (localStorage only)
+        - No external APIs (unless essential to the app)
+        - No frameworks or npm packages
+
+  - type: input
+    id: app-name
+    attributes:
+      label: App Name
+      description: What should this app be called?
+      placeholder: "e.g., Pomodoro Timer"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What should it do?
+      description: Describe the app's purpose and main functionality
+      placeholder: |
+        A simple pomodoro timer that:
+        - Has a 25-minute work timer
+        - Has a 5-minute break timer
+        - Plays a sound when time is up
+        - Tracks completed pomodoros
+    validations:
+      required: true
+
+  - type: textarea
+    id: features
+    attributes:
+      label: Key Features
+      description: List the specific features you want (be detailed!)
+      placeholder: |
+        - Start/pause/reset buttons
+        - Visual countdown display
+        - Settings to customize work/break duration
+        - Counter showing completed sessions
+        - Save settings to localStorage
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Complexity
+      description: How complex do you think this app is?
+      options:
+        - Simple (single feature, minimal UI)
+        - Medium (multiple features, some interactivity)
+        - Complex (many features, lots of state)
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples or Inspiration
+      description: Links to similar apps or screenshots (optional)
+      placeholder: "https://example.com/similar-app"
+    validations:
+      required: false
