@@ -20,8 +20,12 @@
       </div>
     </header>
 
-    <section class="section">
-      <h2>What is this?</h2>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="about">About</button>
+      <button class="tab-btn" data-tab="request">Request</button>
+    </div>
+
+    <section class="section tab-content active" id="tab-about">
       <p>
         Slopify is a collection of small, single-purpose web apps.
         The twist? They're all built by Claude, an AI, based on requests from humans.
@@ -32,21 +36,16 @@
       </p>
     </section>
 
-    <section class="section">
-      <h2>Request an App</h2>
+    <section class="section tab-content" id="tab-request">
       <div id="request-logged-out">
-        <p>Got an idea for a simple web app? Log in with GitHub to submit a request!</p>
+        <p>Log in with GitHub to submit a request!</p>
         <ol class="steps">
           <li>Log in with your GitHub account</li>
-          <li>Fill out the request form below</li>
-          <li>Wait for approval (we'll add the "approved" label)</li>
+          <li>Fill out the request form</li>
+          <li>Wait for approval</li>
           <li>Claude builds it and opens a PR</li>
           <li>If CI passes, it auto-deploys here</li>
         </ol>
-        <p style="margin-top: 1rem; opacity: 0.7;">
-          Keep it simple. Single-page apps only. No backend (for now).
-          Think: timers, calculators, converters, games, tools.
-        </p>
       </div>
       <div id="request-form-container" style="display: none;">
         <form id="request-form">
@@ -204,9 +203,27 @@
       });
     }
 
+    function setupTabs() {
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.dataset.tab;
+
+          tabBtns.forEach(b => b.classList.remove('active'));
+          tabContents.forEach(c => c.classList.remove('active'));
+
+          btn.classList.add('active');
+          document.getElementById(`tab-${tabId}`).classList.add('active');
+        });
+      });
+    }
+
     loadApps();
     checkAuth();
     setupForm();
+    setupTabs();
   </script>
 </body>
 </html>
