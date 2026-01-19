@@ -107,3 +107,13 @@ When creating a PR:
 - Include `Closes #N` in the PR body (where N is the issue number) to auto-close the issue on merge
 - Include a brief description of the app's functionality
 - The PR will auto-merge after CI passes
+
+## Important: package-lock.json
+
+If regenerating package-lock.json, ensure it uses the public npm registry:
+
+```bash
+npm install --registry https://registry.npmjs.org
+```
+
+The resolved URLs must point to `registry.npmjs.org`, NOT any private/internal registries. Cloudflare Pages builds will fail if the lockfile references private registries.
