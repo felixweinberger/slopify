@@ -209,6 +209,11 @@ footer a {
   background: rgba(255, 255, 255, 0.2);
 }
 
+#auth-container {
+  display: flex;
+  align-items: center;
+}
+
 .user-info {
   display: flex;
   align-items: center;
