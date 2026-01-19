@@ -26,13 +26,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return Response.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
-  // Get user's access token from DB
+  // Get username from DB for attribution
   const user = await env.DB.prepare(
-    'SELECT access_token FROM users WHERE id = ?'
-  ).bind(userId).first<{ access_token: string }>();
+    'SELECT username FROM users WHERE id = ?'
+  ).bind(userId).first<{ username: string }>();
 
-  if (!user?.access_token) {
-    return Response.json({ error: 'No access token found' }, { status: 401 });
+  if (!user) {
+    return Response.json({ error: 'User not found' }, { status: 401 });
   }
 
   const body = await request.json() as SubmitRequestBody;
@@ -41,32 +41,33 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return Response.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  // Format issue based on type
+  // Format issue based on type (include submitter attribution)
   let issueTitle: string;
   let issueBody: string;
+  const attribution = `\n\n---\n*Submitted by [@${user.username}](https://github.com/${user.username}) via Slopify*`;
 
   switch (body.type) {
     case 'app':
       issueTitle = `[New App] ${body.title}`;
-      issueBody = `## Description\n${body.description}\n\n---\n*Submitted via Slopify*`;
+      issueBody = `## Description\n${body.description}${attribution}`;
       break;
     case 'feature':
       issueTitle = `[Feature] ${body.title}`;
-      issueBody = `## App\n${body.appName || 'Not specified'}\n\n## Description\n${body.description}\n\n---\n*Submitted via Slopify*`;
+      issueBody = `## App\n${body.appName || 'Not specified'}\n\n## Description\n${body.description}${attribution}`;
       break;
     case 'bug':
       issueTitle = `[Bug] ${body.title}`;
-      issueBody = `## App\n${body.appName || 'Not specified'}\n\n## Description\n${body.description}\n\n---\n*Submitted via Slopify*`;
+      issueBody = `## App\n${body.appName || 'Not specified'}\n\n## Description\n${body.description}${attribution}`;
       break;
     default:
       return Response.json({ error: 'Invalid type' }, { status: 400 });
   }
 
-  // Create GitHub issue
+  // Create GitHub issue using bot token (scoped to this repo only)
   const issueResponse = await fetch('https://api.github.com/repos/felixweinberger/slopify/issues', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${user.access_token}`,
+      'Authorization': `Bearer ${env.GITHUB_BOT_TOKEN}`,
       'User-Agent': 'Slopify',
       'Content-Type': 'application/json',
     },

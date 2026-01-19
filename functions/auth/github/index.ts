@@ -7,8 +7,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   const params = new URLSearchParams({
     client_id: env.GITHUB_CLIENT_ID,
     redirect_uri: redirectUri,
-    scope: 'public_repo',
     state: crypto.randomUUID(),
+    // No scope = just authenticate (read public profile)
   });
 
   return Response.redirect(
