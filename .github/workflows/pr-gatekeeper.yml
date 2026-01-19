@@ -1,0 +1,27 @@
+name: PR Gatekeeper
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  check-author:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Close unauthorized PRs
+        run: |
+          AUTHOR="${{ github.actor }}"
+
+          # Only allow Claude and repo owner
+          if [[ "$AUTHOR" == "claude[bot]" || "$AUTHOR" == "felixweinberger" ]]; then
+            echo "✅ PR from $AUTHOR is allowed"
+          else
+            echo "❌ Closing PR from unauthorized author: $AUTHOR"
+            gh pr close ${{ github.event.pull_request.number }} \
+              --repo ${{ github.repository }} \
+              --comment "Thanks for your interest! PRs are only accepted from Claude. Please submit an app request via [Issues](https://github.com/${{ github.repository }}/issues/new/choose) instead."
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
