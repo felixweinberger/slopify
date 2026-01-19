@@ -12,5 +12,12 @@
     "description": "A simple counter with increment, decrement, and reset buttons",
     "icon": "🔢",
     "path": "/apps/counter/"
+  },
+  {
+    "id": "currency-converter",
+    "name": "Currency Converter",
+    "description": "Convert between world currencies with live exchange rates",
+    "icon": "💱",
+    "path": "/apps/currency-converter/"
   }
 ]
