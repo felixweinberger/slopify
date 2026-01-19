@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <canvas id="confetti-canvas"></canvas>
   <div class="container">
     <header>
       <div class="header-content">
@@ -224,6 +225,88 @@
     checkAuth();
     setupForm();
     setupTabs();
+
+    // Confetti animation
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    const colors = ['#ec4899', '#8b5cf6', '#fbbf24', '#22d3ee'];
+    const confetti = [];
+
+    class Confetto {
+      constructor() {
+        this.reset();
+        this.y = Math.random() * canvas.height;
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = -10;
+        this.size = Math.random() * 8 + 4;
+        this.speedY = Math.random() * 3 + 1;
+        this.speedX = Math.random() * 2 - 1;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.rotation = Math.random() * 360;
+        this.rotationSpeed = Math.random() * 4 - 2;
+        this.shape = Math.random() > 0.5 ? 'square' : 'circle';
+      }
+
+      update() {
+        this.y += this.speedY;
+        this.x += this.speedX;
+        this.rotation += this.rotationSpeed;
+
+        if (this.y > canvas.height) {
+          this.reset();
+        }
+
+        if (this.x < -10 || this.x > canvas.width + 10) {
+          this.x = Math.random() * canvas.width;
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate((this.rotation * Math.PI) / 180);
+        ctx.fillStyle = this.color;
+
+        if (this.shape === 'circle') {
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+        }
+
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < 50; i++) {
+      confetti.push(new Confetto());
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      confetti.forEach(confetto => {
+        confetto.update();
+        confetto.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
   </script>
 </body>
 </html>
