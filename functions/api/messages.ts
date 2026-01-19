@@ -109,9 +109,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return Response.json({ error: 'Recipient not found' }, { status: 404 });
   }
 
-  if (recipient.id === userId) {
-    return Response.json({ error: 'Cannot message yourself' }, { status: 400 });
-  }
 
   const now = Date.now();
 

@@ -408,7 +408,7 @@
       const response = await fetch('/api/users');
       if (!response.ok) throw new Error('Failed to fetch users');
       const data = await response.json();
-      allUsers = (data.users || []).filter(u => u.username !== currentUser.username);
+      allUsers = data.users || [];
     }
 
     async function loadMessages() {
