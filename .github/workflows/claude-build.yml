@@ -27,6 +27,7 @@ jobs:
             ${{ github.event.issue.body }}
 
             Follow the guidelines in CLAUDE.md. Include "Closes #${{ github.event.issue.number }}" in the PR description.
+          allowed_tools: "Bash,Write,Edit,Read,Glob,Grep,TodoWrite,TodoRead"
 
       # Find the PR created for this issue and enable auto-merge
       - name: Enable auto-merge
