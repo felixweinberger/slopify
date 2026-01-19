@@ -9,8 +9,15 @@
 <body>
   <div class="container">
     <header>
-      <h1>Slopify</h1>
-      <p class="tagline">sloppy apps built by claude</p>
+      <div class="header-content">
+        <div>
+          <h1>Slopify</h1>
+          <p class="tagline">sloppy apps built by claude</p>
+        </div>
+        <div id="auth-container">
+          <a href="/auth/github" class="login-btn">Login with GitHub</a>
+        </div>
+      </div>
     </header>
 
     <section class="section">
@@ -27,18 +34,46 @@
 
     <section class="section">
       <h2>Request an App</h2>
-      <p>Got an idea for a simple web app? Here's how to make it happen:</p>
-      <ol class="steps">
-        <li>Open a <a href="https://github.com/felixweinberger/slopify/issues/new" target="_blank">new GitHub issue</a></li>
-        <li>Describe what you want the app to do</li>
-        <li>Wait for approval (we'll add the "approved" label)</li>
-        <li>Claude builds it and opens a PR</li>
-        <li>If CI passes, it auto-deploys here</li>
-      </ol>
-      <p style="margin-top: 1rem; opacity: 0.7;">
-        Keep it simple. Single-page apps only. No backend (for now).
-        Think: timers, calculators, converters, games, tools.
-      </p>
+      <div id="request-logged-out">
+        <p>Got an idea for a simple web app? Log in with GitHub to submit a request!</p>
+        <ol class="steps">
+          <li>Log in with your GitHub account</li>
+          <li>Fill out the request form below</li>
+          <li>Wait for approval (we'll add the "approved" label)</li>
+          <li>Claude builds it and opens a PR</li>
+          <li>If CI passes, it auto-deploys here</li>
+        </ol>
+        <p style="margin-top: 1rem; opacity: 0.7;">
+          Keep it simple. Single-page apps only. No backend (for now).
+          Think: timers, calculators, converters, games, tools.
+        </p>
+      </div>
+      <div id="request-form-container" style="display: none;">
+        <form id="request-form">
+          <div class="form-group">
+            <label for="request-type">Type</label>
+            <select id="request-type" required>
+              <option value="app">New App</option>
+              <option value="feature">Feature Request</option>
+              <option value="bug">Bug Report</option>
+            </select>
+          </div>
+          <div class="form-group" id="app-name-group" style="display: none;">
+            <label for="app-name">Which App?</label>
+            <input type="text" id="app-name" placeholder="e.g., Counter, Calculator">
+          </div>
+          <div class="form-group">
+            <label for="request-title">Title</label>
+            <input type="text" id="request-title" placeholder="e.g., Pomodoro Timer" required>
+          </div>
+          <div class="form-group">
+            <label for="request-description">Description</label>
+            <textarea id="request-description" rows="4" placeholder="Describe what you want..." required></textarea>
+          </div>
+          <button type="submit" class="submit-btn">Submit Request</button>
+        </form>
+        <div id="request-result" style="display: none;"></div>
+      </div>
     </section>
 
     <section class="section">
@@ -56,6 +91,8 @@
   </div>
 
   <script>
+    let currentUser = null;
+
     async function loadApps() {
       const container = document.getElementById('apps-container');
 
@@ -81,7 +118,95 @@
       }
     }
 
+    async function checkAuth() {
+      try {
+        const response = await fetch('/api/me');
+        const data = await response.json();
+        currentUser = data.user;
+        updateAuthUI();
+      } catch (err) {
+        console.error('Auth check failed:', err);
+      }
+    }
+
+    function updateAuthUI() {
+      const authContainer = document.getElementById('auth-container');
+      const loggedOutSection = document.getElementById('request-logged-out');
+      const formContainer = document.getElementById('request-form-container');
+
+      if (currentUser) {
+        authContainer.innerHTML = `
+          <div class="user-info">
+            <img src="${currentUser.avatarUrl}" alt="${currentUser.username}" class="avatar">
+            <span>${currentUser.username}</span>
+            <a href="/auth/logout" class="logout-btn">Logout</a>
+          </div>
+        `;
+        loggedOutSection.style.display = 'none';
+        formContainer.style.display = 'block';
+      } else {
+        authContainer.innerHTML = '<a href="/auth/github" class="login-btn">Login with GitHub</a>';
+        loggedOutSection.style.display = 'block';
+        formContainer.style.display = 'none';
+      }
+    }
+
+    function setupForm() {
+      const form = document.getElementById('request-form');
+      const typeSelect = document.getElementById('request-type');
+      const appNameGroup = document.getElementById('app-name-group');
+
+      typeSelect.addEventListener('change', () => {
+        appNameGroup.style.display = typeSelect.value === 'app' ? 'none' : 'block';
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const submitBtn = form.querySelector('.submit-btn');
+        const resultDiv = document.getElementById('request-result');
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        try {
+          const response = await fetch('/api/submit-request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: document.getElementById('request-type').value,
+              title: document.getElementById('request-title').value,
+              description: document.getElementById('request-description').value,
+              appName: document.getElementById('app-name').value || undefined,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            resultDiv.innerHTML = `
+              <div class="success-message">
+                Request submitted! <a href="${data.issueUrl}" target="_blank">View Issue #${data.issueNumber}</a>
+              </div>
+            `;
+            form.reset();
+          } else {
+            resultDiv.innerHTML = `<div class="error-message">Error: ${data.error}</div>`;
+          }
+          resultDiv.style.display = 'block';
+        } catch (err) {
+          resultDiv.innerHTML = `<div class="error-message">Failed to submit request</div>`;
+          resultDiv.style.display = 'block';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Request';
+        }
+      });
+    }
+
     loadApps();
+    checkAuth();
+    setupForm();
   </script>
 </body>
 </html>

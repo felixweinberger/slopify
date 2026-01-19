@@ -1,0 +1,8 @@
+name = "slopify"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "./"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "slopify-db"
+database_id = "d52dc062-7d98-465e-854d-ee03b82ecba1"
