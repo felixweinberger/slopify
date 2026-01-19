@@ -1,5 +1,3 @@
-import type { Env, User } from '../types';
-
 function getSessionFromCookie(request: Request): string | null {
   const cookie = request.headers.get('Cookie');
   if (!cookie) return null;
@@ -18,7 +16,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   const result = await env.DB.prepare(
     'SELECT id, username, avatar_url as avatarUrl FROM users WHERE id = ?'
-  ).bind(userId).first<User>();
+  ).bind(userId).first();
 
   return Response.json({ user: result || null });
 };

@@ -1,5 +1,3 @@
-import type { Env } from '../types';
-
 interface SubmitRequestBody {
   title: string;
   description: string;

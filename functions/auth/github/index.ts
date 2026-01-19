@@ -1,5 +1,3 @@
-import type { Env } from '../../types';
-
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const { env, request } = context;
 

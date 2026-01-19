@@ -1,5 +1,3 @@
-import type { Env } from '../../types';
-
 interface GitHubTokenResponse {
   access_token: string;
   token_type: string;
