@@ -15,8 +15,13 @@
           <h1>Slopify</h1>
           <p class="tagline">sloppy apps built by claude</p>
         </div>
-        <div id="auth-container">
-          <a href="/auth/github" class="login-btn">Login with GitHub</a>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <button id="confetti-toggle" onclick="toggleConfetti()" style="background: none; border: 1px solid rgba(255,255,255,0.3); padding: 0.4rem 0.8rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.875rem; color: var(--light);">
+            Confetti: Off
+          </button>
+          <div id="auth-container">
+            <a href="/auth/github" class="login-btn">Login with GitHub</a>
+          </div>
         </div>
       </div>
     </header>
@@ -229,6 +234,8 @@
     // Confetti animation
     const canvas = document.getElementById('confetti-canvas');
     const ctx = canvas.getContext('2d');
+    let confettiEnabled = localStorage.getItem('confetti') === 'true';
+    let animationId = null;
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -296,6 +303,11 @@
     }
 
     function animate() {
+      if (!confettiEnabled) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       confetti.forEach(confetto => {
@@ -303,10 +315,30 @@
         confetto.draw();
       });
 
-      requestAnimationFrame(animate);
+      animationId = requestAnimationFrame(animate);
     }
 
-    animate();
+    function toggleConfetti() {
+      confettiEnabled = !confettiEnabled;
+      localStorage.setItem('confetti', confettiEnabled);
+      updateConfettiButton();
+
+      if (confettiEnabled) {
+        animate();
+      } else {
+        if (animationId) cancelAnimationFrame(animationId);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function updateConfettiButton() {
+      const btn = document.getElementById('confetti-toggle');
+      btn.textContent = confettiEnabled ? 'Confetti: On' : 'Confetti: Off';
+      btn.style.background = confettiEnabled ? 'linear-gradient(90deg, var(--pink), var(--purple))' : 'none';
+    }
+
+    updateConfettiButton();
+    if (confettiEnabled) animate();
   </script>
 </body>
 </html>
