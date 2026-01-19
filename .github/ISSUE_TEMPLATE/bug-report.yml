@@ -1,0 +1,67 @@
+name: "🐛 Bug Report"
+description: Report a bug in an existing app
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: input
+    id: app-name
+    attributes:
+      label: Which app?
+      description: Name of the app with the bug
+      placeholder: "e.g., Counter"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug
+      placeholder: "When I click the + button twice quickly, the count jumps by 3 instead of 2"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What should happen?
+      description: Describe the expected behavior
+      placeholder: "The count should increase by exactly 1 for each click"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this bug?
+      placeholder: |
+        1. Open the Counter app
+        2. Click + button rapidly
+        3. See incorrect count
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Chrome
+        - Safari
+        - Firefox
+        - Edge
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      options:
+        - Desktop
+        - Mobile
+        - Tablet
+    validations:
+      required: true
