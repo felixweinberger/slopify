@@ -26,5 +26,12 @@
     "description": "A productivity timer using the Pomodoro Technique with work and break intervals",
     "icon": "🍅",
     "path": "/apps/pomodoro-timer/"
+  },
+  {
+    "id": "user-directory",
+    "name": "User Directory",
+    "description": "Browse all public Slopify users",
+    "icon": "👥",
+    "path": "/apps/user-directory/"
   }
 ]

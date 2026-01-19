@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Directory - Slopify</title>
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .search-box {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--light);
+      font-size: 1rem;
+      font-family: inherit;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: var(--purple);
+    }
+
+    .search-box::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .users-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .user-card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+
+    .user-card:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .user-card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .user-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid var(--purple);
+    }
+
+    .user-card-info h3 {
+      color: var(--cyan);
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .user-card-username {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.875rem;
+    }
+
+    .user-card-display-name {
+      color: var(--light);
+      font-size: 0.875rem;
+      opacity: 0.8;
+      margin-top: 0.25rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      opacity: 0.7;
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      text-align: center;
+    }
+
+    .empty-message {
+      text-align: center;
+      padding: 3rem;
+      opacity: 0.7;
+      font-style: italic;
+    }
+
+    .user-count {
+      color: var(--purple);
+      opacity: 0.9;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .back-link {
+      color: var(--cyan);
+      text-decoration: none;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      .users-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/" class="back-link">← Back to Slopify</a>
+      <h1>👥 User Directory</h1>
+      <p class="tagline">Browse all public Slopify users</p>
+    </header>
+    <main>
+      <div id="content">
+        <div class="loading">Loading users...</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../slopify-sdk.js"></script>
+  <script>
+    let sdk;
+    let allUsers = [];
+
+    async function init() {
+      try {
+        sdk = await new SlopifySDK('user-directory').init();
+
+        if (!sdk.isLoggedIn) {
+          showError('Please <a href="/">log in</a> to view the user directory.');
+          return;
+        }
+
+        await loadUsers();
+      } catch (error) {
+        console.error('Init error:', error);
+        showError('Failed to initialize. Please try again.');
+      }
+    }
+
+    async function loadUsers() {
+      try {
+        const response = await fetch('/api/users');
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            showError('Please <a href="/">log in</a> to view the user directory.');
+            return;
+          }
+          throw new Error('Failed to fetch users');
+        }
+
+        const data = await response.json();
+        allUsers = data.users || [];
+        renderUsers(allUsers);
+      } catch (error) {
+        console.error('Load users error:', error);
+        showError('Failed to load users. Please try again.');
+      }
+    }
+
+    function renderUsers(users) {
+      const content = document.getElementById('content');
+
+      if (users.length === 0) {
+        content.innerHTML = '<div class="empty-message">No public users found yet.</div>';
+        return;
+      }
+
+      const searchBox = `
+        <input
+          type="text"
+          class="search-box"
+          id="search-input"
+          placeholder="Search by username..."
+          autocomplete="off"
+        >
+      `;
+
+      const userCount = `<div class="user-count">${users.length} public ${users.length === 1 ? 'user' : 'users'}</div>`;
+
+      const usersGrid = users.map(user => `
+        <div class="user-card" onclick="viewUser('${user.username}')">
+          <div class="user-card-header">
+            <img
+              src="${user.avatarUrl || 'https://github.com/github.png'}"
+              alt="${user.username}"
+              class="user-avatar"
+            >
+            <div class="user-card-info">
+              <h3>@${user.username}</h3>
+              ${user.displayName ? `<div class="user-card-display-name">${escapeHtml(user.displayName)}</div>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      content.innerHTML = `
+        ${searchBox}
+        ${userCount}
+        <div class="users-grid">
+          ${usersGrid}
+        </div>
+      `;
+
+      const searchInput = document.getElementById('search-input');
+      searchInput.addEventListener('input', handleSearch);
+    }
+
+    function handleSearch(event) {
+      const query = event.target.value.toLowerCase().trim();
+
+      if (!query) {
+        renderUsers(allUsers);
+        return;
+      }
+
+      const filtered = allUsers.filter(user =>
+        user.username.toLowerCase().includes(query) ||
+        (user.displayName && user.displayName.toLowerCase().includes(query))
+      );
+
+      renderUsers(filtered);
+    }
+
+    function viewUser(username) {
+      // Future: Navigate to user profile or start chat
+      console.log('View user:', username);
+      alert(`Profile view for @${username} coming soon!`);
+    }
+
+    function showError(message) {
+      const content = document.getElementById('content');
+      content.innerHTML = `<div class="error">${message}</div>`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>
