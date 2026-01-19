@@ -136,8 +136,8 @@
       if (currentUser) {
         authContainer.innerHTML = `
           <div class="user-info">
-            <img src="${currentUser.avatarUrl}" alt="${currentUser.username}" class="avatar">
-            <span>${currentUser.username}</span>
+            <a href="/profile.html"><img src="${currentUser.avatarUrl}" alt="${currentUser.username}" class="avatar"></a>
+            <a href="/profile.html" style="color: var(--light); text-decoration: none;">${currentUser.username}</a>
             <a href="/auth/logout" class="logout-btn">Logout</a>
           </div>
         `;

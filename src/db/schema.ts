@@ -6,7 +6,7 @@ export const users = sqliteTable('users', {
   avatarUrl: text('avatar_url'),
   accessToken: text('access_token'),         // GitHub OAuth token
   displayName: text('display_name'),         // Optional display name
-  isPublic: integer('is_public').default(0), // 1 = visible in user list
+  isPublic: integer('is_public').default(1), // 1 = visible in user list (public by default)
   createdAt: integer('created_at', { mode: 'timestamp' }),
 });
 
