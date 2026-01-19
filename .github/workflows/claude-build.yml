@@ -19,6 +19,14 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Implement the following feature request and create a PR:
+
+            Title: ${{ github.event.issue.title }}
+
+            ${{ github.event.issue.body }}
+
+            Follow the guidelines in CLAUDE.md. Include "Closes #${{ github.event.issue.number }}" in the PR description.
 
       # Find the PR created for this issue and enable auto-merge
       - name: Enable auto-merge
