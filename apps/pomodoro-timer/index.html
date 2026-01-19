@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Timer - Slopify</title>
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .timer-container {
+      text-align: center;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .timer-display {
+      font-size: 6rem;
+      font-weight: bold;
+      margin: 2rem 0;
+      font-variant-numeric: tabular-nums;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .timer-status {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      color: var(--cyan);
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+      font-weight: 600;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: white;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .settings {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .settings h3 {
+      margin-top: 0;
+      color: var(--yellow);
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1rem 0;
+      gap: 1rem;
+    }
+
+    .setting-row label {
+      flex: 1;
+    }
+
+    .setting-row input {
+      width: 80px;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 1rem;
+    }
+
+    .stats {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .stats h3 {
+      margin-top: 0;
+      color: var(--cyan);
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.5rem 0;
+    }
+
+    .stat-value {
+      font-weight: bold;
+      color: var(--pink);
+    }
+
+    @media (max-width: 600px) {
+      .timer-display {
+        font-size: 4rem;
+      }
+
+      .btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+      }
+
+      .setting-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .setting-row input {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/">← Back to Slopify</a>
+      <h1>🍅 Pomodoro Timer</h1>
+    </header>
+    <main>
+      <div class="timer-container">
+        <div class="timer-status" id="status">Work Time</div>
+        <div class="timer-display" id="timer">25:00</div>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="startBtn">Start</button>
+          <button class="btn btn-secondary" id="pauseBtn" disabled>Pause</button>
+          <button class="btn btn-secondary" id="resetBtn">Reset</button>
+        </div>
+
+        <div class="settings">
+          <h3>⚙️ Settings</h3>
+          <div class="setting-row">
+            <label for="workDuration">Work Duration (minutes):</label>
+            <input type="number" id="workDuration" min="1" max="60" value="25">
+          </div>
+          <div class="setting-row">
+            <label for="breakDuration">Short Break (minutes):</label>
+            <input type="number" id="breakDuration" min="1" max="30" value="5">
+          </div>
+          <div class="setting-row">
+            <label for="longBreakDuration">Long Break (minutes):</label>
+            <input type="number" id="longBreakDuration" min="1" max="60" value="15">
+          </div>
+          <div class="setting-row">
+            <label for="longBreakInterval">Long Break After (pomodoros):</label>
+            <input type="number" id="longBreakInterval" min="2" max="10" value="4">
+          </div>
+        </div>
+
+        <div class="stats">
+          <h3>📊 Today's Stats</h3>
+          <div class="stat-item">
+            <span>Pomodoros Completed:</span>
+            <span class="stat-value" id="pomodorosCompleted">0</span>
+          </div>
+          <div class="stat-item">
+            <span>Total Focus Time:</span>
+            <span class="stat-value" id="totalFocusTime">0 min</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const timerDisplay = document.getElementById('timer');
+    const statusDisplay = document.getElementById('status');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const workDurationInput = document.getElementById('workDuration');
+    const breakDurationInput = document.getElementById('breakDuration');
+    const longBreakDurationInput = document.getElementById('longBreakDuration');
+    const longBreakIntervalInput = document.getElementById('longBreakInterval');
+    const pomodorosCompletedDisplay = document.getElementById('pomodorosCompleted');
+    const totalFocusTimeDisplay = document.getElementById('totalFocusTime');
+
+    let timeLeft = 25 * 60;
+    let timerId = null;
+    let isRunning = false;
+    let isWorkTime = true;
+    let pomodorosCompleted = 0;
+    let totalFocusTime = 0;
+
+    // Load stats from localStorage
+    function loadStats() {
+      const today = new Date().toDateString();
+      const savedDate = localStorage.getItem('pomodoroDate');
+
+      if (savedDate === today) {
+        pomodorosCompleted = parseInt(localStorage.getItem('pomodorosCompleted') || '0');
+        totalFocusTime = parseInt(localStorage.getItem('totalFocusTime') || '0');
+      } else {
+        // New day, reset stats
+        pomodorosCompleted = 0;
+        totalFocusTime = 0;
+        localStorage.setItem('pomodoroDate', today);
+      }
+
+      updateStatsDisplay();
+    }
+
+    function saveStats() {
+      localStorage.setItem('pomodorosCompleted', pomodorosCompleted.toString());
+      localStorage.setItem('totalFocusTime', totalFocusTime.toString());
+    }
+
+    function updateStatsDisplay() {
+      pomodorosCompletedDisplay.textContent = pomodorosCompleted;
+      totalFocusTimeDisplay.textContent = `${totalFocusTime} min`;
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function updateDisplay() {
+      timerDisplay.textContent = formatTime(timeLeft);
+    }
+
+    function updateStatus() {
+      if (isWorkTime) {
+        statusDisplay.textContent = 'Work Time';
+      } else {
+        const isLongBreak = pomodorosCompleted > 0 &&
+                            pomodorosCompleted % parseInt(longBreakIntervalInput.value) === 0;
+        statusDisplay.textContent = isLongBreak ? 'Long Break' : 'Short Break';
+      }
+    }
+
+    function playNotificationSound() {
+      // Create a simple beep using Web Audio API
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.frequency.value = 800;
+      oscillator.type = 'sine';
+
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+
+      isRunning = true;
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
+
+      // Disable settings while timer is running
+      workDurationInput.disabled = true;
+      breakDurationInput.disabled = true;
+      longBreakDurationInput.disabled = true;
+      longBreakIntervalInput.disabled = true;
+
+      timerId = setInterval(() => {
+        timeLeft--;
+        updateDisplay();
+
+        if (timeLeft === 0) {
+          clearInterval(timerId);
+          playNotificationSound();
+
+          if (isWorkTime) {
+            // Work session completed
+            pomodorosCompleted++;
+            totalFocusTime += parseInt(workDurationInput.value);
+            saveStats();
+            updateStatsDisplay();
+
+            // Switch to break
+            isWorkTime = false;
+            const isLongBreak = pomodorosCompleted % parseInt(longBreakIntervalInput.value) === 0;
+            timeLeft = (isLongBreak ?
+                       parseInt(longBreakDurationInput.value) :
+                       parseInt(breakDurationInput.value)) * 60;
+          } else {
+            // Break completed, switch to work
+            isWorkTime = true;
+            timeLeft = parseInt(workDurationInput.value) * 60;
+          }
+
+          updateStatus();
+          updateDisplay();
+          isRunning = false;
+          startBtn.disabled = false;
+          pauseBtn.disabled = true;
+
+          // Show notification
+          if (Notification.permission === 'granted') {
+            new Notification('Pomodoro Timer', {
+              body: isWorkTime ? 'Break time is over! Back to work.' : 'Work session complete! Time for a break.',
+              icon: '🍅'
+            });
+          }
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      if (!isRunning) return;
+
+      clearInterval(timerId);
+      isRunning = false;
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+    }
+
+    function resetTimer() {
+      clearInterval(timerId);
+      isRunning = false;
+      isWorkTime = true;
+      timeLeft = parseInt(workDurationInput.value) * 60;
+
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+
+      // Re-enable settings
+      workDurationInput.disabled = false;
+      breakDurationInput.disabled = false;
+      longBreakDurationInput.disabled = false;
+      longBreakIntervalInput.disabled = false;
+
+      updateStatus();
+      updateDisplay();
+    }
+
+    // Event listeners
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetTimer);
+
+    // Update timer when work duration changes (only when not running)
+    workDurationInput.addEventListener('change', () => {
+      if (!isRunning && isWorkTime) {
+        timeLeft = parseInt(workDurationInput.value) * 60;
+        updateDisplay();
+      }
+    });
+
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    // Initialize
+    loadStats();
+    updateDisplay();
+    updateStatus();
+  </script>
+</body>
+</html>

@@ -19,5 +19,12 @@
     "description": "Convert between world currencies with live exchange rates",
     "icon": "💱",
     "path": "/apps/currency-converter/"
+  },
+  {
+    "id": "pomodoro-timer",
+    "name": "Pomodoro Timer",
+    "description": "A productivity timer using the Pomodoro Technique with work and break intervals",
+    "icon": "🍅",
+    "path": "/apps/pomodoro-timer/"
   }
 ]
