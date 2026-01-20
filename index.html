@@ -133,10 +133,16 @@
 
       if (currentUser) {
         authContainer.innerHTML = `
-          <div class="user-info">
-            <a href="/profile.html"><img src="${currentUser.avatarUrl}" alt="${currentUser.username}" class="avatar"></a>
-            <a href="/profile.html" style="color: var(--light); text-decoration: none;">${currentUser.username}</a>
-            <a href="/auth/logout" class="logout-btn">Logout</a>
+          <div class="user-menu">
+            <button class="user-menu-btn" onclick="toggleUserMenu()">
+              <img src="${currentUser.avatarUrl}" alt="${currentUser.username}" class="avatar">
+              <span class="user-menu-name">${currentUser.username}</span>
+              <span class="user-menu-arrow">▼</span>
+            </button>
+            <div class="user-menu-dropdown" id="user-dropdown">
+              <a href="/profile.html">Profile</a>
+              <a href="/auth/logout">Logout</a>
+            </div>
           </div>
         `;
         loggedOutSection.style.display = 'none';
@@ -217,6 +223,19 @@
         });
       });
     }
+
+    function toggleUserMenu() {
+      const dropdown = document.getElementById('user-dropdown');
+      dropdown.classList.toggle('show');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.user-menu')) {
+        const dropdown = document.getElementById('user-dropdown');
+        if (dropdown) dropdown.classList.remove('show');
+      }
+    });
 
     loadApps();
     checkAuth();
