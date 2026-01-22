@@ -35,6 +35,13 @@
     "path": "/apps/currency-converter/"
   },
   {
+    "id": "global-chat",
+    "name": "Global Chat",
+    "description": "A real-time chat room where everyone can talk together",
+    "icon": "💬",
+    "path": "/apps/global-chat/"
+  },
+  {
     "id": "nokia-snake-2",
     "name": "Nokia Snake 2",
     "description": "Classic Nokia Snake game with wraparound and high score tracking",
