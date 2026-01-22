@@ -14,6 +14,13 @@
     "path": "/apps/chat/"
   },
   {
+    "id": "coin-flip",
+    "name": "Coin Flip",
+    "description": "Flip a coin with satisfying animations and track your flip history",
+    "icon": "🪙",
+    "path": "/apps/coin-flip/"
+  },
+  {
     "id": "counter",
     "name": "Counter",
     "description": "A simple counter with increment, decrement, and reset buttons",
