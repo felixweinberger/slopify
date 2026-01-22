@@ -35,6 +35,13 @@
     "path": "/apps/currency-converter/"
   },
   {
+    "id": "enterprise-contract-signer",
+    "name": "Enterprise Contract Signer",
+    "description": "Sign Cloudflare Enterprise Contracts with pre-filled terms in no time",
+    "icon": "📝",
+    "path": "/apps/enterprise-contract-signer/"
+  },
+  {
     "id": "nokia-snake-2",
     "name": "Nokia Snake 2",
     "description": "Classic Nokia Snake game with wraparound and high score tracking",
