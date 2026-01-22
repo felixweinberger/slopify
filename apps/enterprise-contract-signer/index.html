@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise Contract Signer - Slopify</title>
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    .contract-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .contract-form {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--cyan);
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: white;
+      font-size: 1rem;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--purple);
+    }
+
+    .form-group input[readonly] {
+      background: rgba(138, 43, 226, 0.1);
+      cursor: not-allowed;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .signature-pad {
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid var(--purple);
+      border-radius: 8px;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .signature-controls {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(138, 43, 226, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .contract-preview {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+      display: none;
+    }
+
+    .contract-preview.show {
+      display: block;
+    }
+
+    .contract-preview h2 {
+      color: var(--yellow);
+      border-bottom: 2px solid var(--purple);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .contract-preview p {
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .contract-preview .highlight {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    .signature-display {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .signature-display img {
+      max-width: 300px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .success-message {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin: 2rem 0;
+      text-align: center;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .info-box {
+      background: rgba(6, 182, 212, 0.1);
+      border-left: 4px solid var(--cyan);
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .contract-form {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="/">← Back to Slopify</a>
+      <h1>📝 Enterprise Contract Signer</h1>
+      <p>Sign your Cloudflare Enterprise Contract with pre-filled terms</p>
+    </header>
+
+    <main class="contract-container">
+      <div class="info-box">
+        <strong>Pre-filled contract terms:</strong> $10M contract value, 30-year term
+      </div>
+
+      <div class="contract-form">
+        <h2>Contract Details</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="contractValue">Contract Value</label>
+            <input type="text" id="contractValue" value="$10,000,000" readonly>
+          </div>
+
+          <div class="form-group">
+            <label for="contractTerm">Contract Term</label>
+            <input type="text" id="contractTerm" value="30 years" readonly>
+          </div>
+        </div>
+
+        <h2 style="margin-top: 2rem;">Your Information</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input type="text" id="firstName" required placeholder="John">
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input type="text" id="lastName" required placeholder="Doe">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" required placeholder="john.doe@company.com">
+        </div>
+
+        <div class="form-group">
+          <label for="company">Company Name *</label>
+          <input type="text" id="company" required placeholder="Acme Corporation">
+        </div>
+
+        <div class="form-group">
+          <label for="title">Job Title *</label>
+          <input type="text" id="title" required placeholder="Chief Technology Officer">
+        </div>
+
+        <h2 style="margin-top: 2rem;">Your Signature *</h2>
+
+        <div class="form-group">
+          <canvas id="signaturePad" class="signature-pad" width="700" height="200"></canvas>
+          <div class="signature-controls">
+            <button class="btn btn-secondary" id="clearSignature">Clear Signature</button>
+            <button class="btn btn-primary" id="previewContract">Preview Contract</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="contractPreview" class="contract-preview">
+        <h2>Cloudflare Enterprise Services Agreement</h2>
+
+        <p>This Enterprise Services Agreement ("Agreement") is entered into as of <span class="highlight" id="previewDate"></span> between:</p>
+
+        <p><strong>Cloudflare, Inc.</strong> ("Provider")<br>
+        101 Townsend St, San Francisco, CA 94107</p>
+
+        <p>and</p>
+
+        <p><strong><span class="highlight" id="previewCompany"></span></strong> ("Customer")<br>
+        Represented by: <span class="highlight" id="previewName"></span>, <span class="highlight" id="previewTitle"></span><br>
+        Email: <span class="highlight" id="previewEmail"></span></p>
+
+        <h3 style="margin-top: 2rem;">1. Services & Terms</h3>
+        <p>Provider agrees to provide Enterprise-level services to Customer under the following terms:</p>
+        <ul>
+          <li><strong>Contract Value:</strong> <span class="highlight">$10,000,000 USD</span></li>
+          <li><strong>Contract Term:</strong> <span class="highlight">30 years</span> from the date of execution</li>
+          <li><strong>Service Level:</strong> Enterprise Premium with 24/7 support</li>
+          <li><strong>Payment Terms:</strong> Annual billing in advance</li>
+        </ul>
+
+        <h3>2. Services Included</h3>
+        <ul>
+          <li>Unlimited bandwidth and requests</li>
+          <li>Advanced DDoS protection</li>
+          <li>Enterprise-grade security features</li>
+          <li>Dedicated account management</li>
+          <li>Custom SSL certificates</li>
+          <li>99.99% uptime SLA</li>
+        </ul>
+
+        <h3>3. Acceptance</h3>
+        <p>By signing below, Customer accepts all terms and conditions of this Agreement.</p>
+
+        <div class="signature-display">
+          <p><strong>Customer Signature:</strong></p>
+          <img id="signatureImage" src="" alt="Signature">
+          <p style="margin-top: 1rem;">
+            <strong>Signed by:</strong> <span class="highlight" id="signatureName"></span><br>
+            <strong>Date:</strong> <span class="highlight" id="signatureDate"></span>
+          </p>
+        </div>
+
+        <div style="margin-top: 2rem;">
+          <button class="btn btn-primary" id="signContract">✓ Sign Contract</button>
+          <button class="btn btn-secondary" id="editContract">Edit Information</button>
+        </div>
+      </div>
+
+      <div id="successMessage" class="success-message">
+        <h2>🎉 Contract Signed Successfully!</h2>
+        <p>Your Cloudflare Enterprise Contract has been executed.</p>
+        <p><strong>Contract ID:</strong> <span id="contractId"></span></p>
+        <p>A copy has been saved to your browser's local storage.</p>
+        <button class="btn btn-secondary" style="margin-top: 1rem;" id="downloadContract">Download Contract PDF</button>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('signaturePad');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let hasSignature = false;
+
+    // Pre-fill user data from localStorage if available
+    const savedData = JSON.parse(localStorage.getItem('userData') || '{}');
+    if (savedData.firstName) document.getElementById('firstName').value = savedData.firstName;
+    if (savedData.lastName) document.getElementById('lastName').value = savedData.lastName;
+    if (savedData.email) document.getElementById('email').value = savedData.email;
+    if (savedData.company) document.getElementById('company').value = savedData.company;
+    if (savedData.title) document.getElementById('title').value = savedData.title;
+
+    // Signature pad setup
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    // Mouse events
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+
+    // Touch events
+    canvas.addEventListener('touchstart', handleTouch);
+    canvas.addEventListener('touchmove', handleTouch);
+    canvas.addEventListener('touchend', stopDrawing);
+
+    function startDrawing(e) {
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      ctx.beginPath();
+      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.stroke();
+      hasSignature = true;
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+    function handleTouch(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+
+      if (e.type === 'touchstart') {
+        isDrawing = true;
+        ctx.beginPath();
+        ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      } else if (e.type === 'touchmove' && isDrawing) {
+        ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        ctx.stroke();
+        hasSignature = true;
+      }
+    }
+
+    // Clear signature
+    document.getElementById('clearSignature').addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      hasSignature = false;
+    });
+
+    // Preview contract
+    document.getElementById('previewContract').addEventListener('click', () => {
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const company = document.getElementById('company').value.trim();
+      const title = document.getElementById('title').value.trim();
+
+      if (!firstName || !lastName || !email || !company || !title) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      if (!hasSignature) {
+        alert('Please provide your signature.');
+        return;
+      }
+
+      // Save user data
+      localStorage.setItem('userData', JSON.stringify({ firstName, lastName, email, company, title }));
+
+      // Update preview
+      const fullName = `${firstName} ${lastName}`;
+      const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+      document.getElementById('previewDate').textContent = today;
+      document.getElementById('previewCompany').textContent = company;
+      document.getElementById('previewName').textContent = fullName;
+      document.getElementById('previewTitle').textContent = title;
+      document.getElementById('previewEmail').textContent = email;
+      document.getElementById('signatureName').textContent = fullName;
+      document.getElementById('signatureDate').textContent = today;
+      document.getElementById('signatureImage').src = canvas.toDataURL();
+
+      // Show preview
+      document.getElementById('contractPreview').classList.add('show');
+      document.getElementById('contractPreview').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Edit contract
+    document.getElementById('editContract').addEventListener('click', () => {
+      document.getElementById('contractPreview').classList.remove('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Sign contract
+    document.getElementById('signContract').addEventListener('click', () => {
+      const contractId = 'CF-ENT-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+      const contractData = {
+        id: contractId,
+        date: new Date().toISOString(),
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        company: document.getElementById('company').value,
+        title: document.getElementById('title').value,
+        signature: canvas.toDataURL(),
+        contractValue: '$10,000,000',
+        contractTerm: '30 years'
+      };
+
+      // Save contract
+      const contracts = JSON.parse(localStorage.getItem('signedContracts') || '[]');
+      contracts.push(contractData);
+      localStorage.setItem('signedContracts', JSON.stringify(contracts));
+
+      // Show success
+      document.getElementById('contractId').textContent = contractId;
+      document.getElementById('successMessage').classList.add('show');
+      document.getElementById('contractPreview').classList.remove('show');
+      document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Download contract
+    document.getElementById('downloadContract').addEventListener('click', () => {
+      const contractId = document.getElementById('contractId').textContent;
+      const contracts = JSON.parse(localStorage.getItem('signedContracts') || '[]');
+      const contract = contracts.find(c => c.id === contractId);
+
+      if (contract) {
+        const blob = new Blob([JSON.stringify(contract, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cloudflare-contract-${contractId}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    });
+  </script>
+</body>
+</html>
