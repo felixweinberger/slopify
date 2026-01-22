@@ -35,6 +35,13 @@
     "path": "/apps/currency-converter/"
   },
   {
+    "id": "guestbook",
+    "name": "Guestbook",
+    "description": "Sign your name and leave a message for other visitors",
+    "icon": "📝",
+    "path": "/apps/guestbook/"
+  },
+  {
     "id": "nokia-snake-2",
     "name": "Nokia Snake 2",
     "description": "Classic Nokia Snake game with wraparound and high score tracking",
